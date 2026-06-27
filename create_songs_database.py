@@ -1,22 +1,24 @@
-import sqlite3
 import json
+import sqlite3
 import unicodedata
 from pathlib import Path
 
 import pandas as pd
 
-
 # 定数
 RESOUECE_PATH = Path("./resource/")
 DATABASE_PATH = Path("./database/")
 
+
 def main() -> None:
-    
+
     # 歌詞リストを読み込む
     lyric_list_path = RESOUECE_PATH.joinpath("lyrics_list.csv")
     if lyric_list_path.exists():
         lyric_list_df = pd.read_csv(lyric_list_path, encoding="cp932")
-        lyric_list_df["曲名"] = [unicodedata.normalize('NFKC', name) for name in lyric_list_df["曲名"].tolist()]
+        lyric_list_df["曲名"] = [
+            unicodedata.normalize("NFKC", name) for name in lyric_list_df["曲名"].tolist()
+        ]
     else:
         lyric_list_df = None
 
@@ -54,15 +56,14 @@ def main() -> None:
 
     # データ登録
     for song_data_path in RESOUECE_PATH.glob("*.json"):
-        
         # JSON読み込み
         with open(song_data_path, "r", encoding="utf-8") as f:
             song_data = json.load(f)
-            
+
         # 歌詞を取得
-        song_title = unicodedata.normalize('NFKC', song_data["title"])
+        song_title = unicodedata.normalize("NFKC", song_data["title"])
         if lyric_list_df is not None:
-            lyric = lyric_list_df.loc[lyric_list_df["曲名"]==song_title, "歌詞"].item()
+            lyric = lyric_list_df.loc[lyric_list_df["曲名"] == song_title, "歌詞"].item()
         else:
             lyric = None
 
@@ -79,8 +80,8 @@ def main() -> None:
                 song_data["release_date"],
                 ",".join(song_data.get("lyrics", None)),
                 ",".join(song_data.get("music", None)),
-                lyric
-            )
+                lyric,
+            ),
         )
 
         song_id = cursor.lastrowid
@@ -105,16 +106,10 @@ def main() -> None:
                 song_id,
                 details.get("background", {}).get("description"),
                 details.get("background", {}).get("artist_comment"),
-                json.dumps(
-                    details.get("musical_features", {}),
-                    ensure_ascii=False
-                ),
+                json.dumps(details.get("musical_features", {}), ensure_ascii=False),
                 details.get("reception", {}).get("description"),
-                json.dumps(
-                    details.get("related_information", []),
-                    ensure_ascii=False
-                )
-            )
+                json.dumps(details.get("related_information", []), ensure_ascii=False),
+            ),
         )
 
     conn.commit()
