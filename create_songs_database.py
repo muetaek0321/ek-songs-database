@@ -43,6 +43,14 @@ def main() -> None:
         lyric TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS song_includes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        song_id INTEGER NOT NULL,
+        discography_type TEXT,
+        discography_title TEXT,
+        FOREIGN KEY(song_id) REFERENCES songs(id)
+    );
+
     CREATE TABLE IF NOT EXISTS song_details (
         song_id INTEGER PRIMARY KEY,
         background TEXT,
@@ -85,6 +93,21 @@ def main() -> None:
         )
 
         song_id = cursor.lastrowid
+
+        # 収録情報登録
+        for include in song_data.get("included_in", []):
+            cursor.execute(
+                """
+                INSERT INTO song_includes
+                (song_id, discography_type, discography_title)
+                VALUES (?, ?, ?)
+                """,
+                (
+                    song_id,
+                    include["type"],
+                    include["title"],
+                ),
+            )
 
         # 詳細情報登録
         details = song_data.get("details", {})
