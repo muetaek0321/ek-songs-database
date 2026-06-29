@@ -70,10 +70,10 @@ def main() -> None:
 
         # 歌詞を取得
         song_title = unicodedata.normalize("NFKC", song_data["title"])
-        if lyric_list_df is not None:
+        if lyric_list_df is not None and (lyric_list_df["曲名"] == song_title).any():
             lyric = lyric_list_df.loc[lyric_list_df["曲名"] == song_title, "歌詞"].item()
         else:
-            lyric = None
+            lyric = ""
 
         # songs登録
         cursor.execute(
