@@ -63,7 +63,7 @@ def main() -> None:
     """)
 
     # データ登録
-    for song_data_path in RESOUECE_PATH.glob("*.json"):
+    for song_data_path in RESOUECE_PATH.glob("**/*.json"):
         # JSON読み込み
         with open(song_data_path, "r", encoding="utf-8") as f:
             song_data = json.load(f)
